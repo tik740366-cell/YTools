@@ -2,5 +2,7 @@
   "appId": "com.ytools.app",
   "appName": "YTools",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "server": {
+    "androidScheme": "https"
+  }
 }
