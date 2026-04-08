@@ -10,7 +10,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - run: |
-          npm install
+          # هاد السطر غيكري المجلد ويحط فيه الملفات إلى ملقاهومش
+          mkdir -p www
+          [ -f index.html ] && mv index.html www/ || echo "index.html already in www"
+          
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init YTools com.ytools.pro --web-dir www --confirm
           npx cap add android
           npx cap copy
           cd android && ./gradlew assembleDebug
