@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e40af" />
+  <title>YTools</title>
+  <style>
+    :root {
+      --blue-dark: #1e3a8a;
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --white: #ffffff;
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --text: #0f172a;
+      --muted: #64748b;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(30, 58, 138, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(165deg, var(--blue-light) 0%, var(--white) 45%, #fff7ed 100%);
+      color: var(--text);
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(88px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
+    }
+
+    header {
+      text-align: center;
+      padding: 1.25rem 1rem 0.75rem;
+    }
+
+    header h1 {
+      font-size: 1.65rem;
+      color: var(--blue-dark);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+
+    main {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 0 1rem 1rem;
+    }
+
+    .panel {
+      display: none;
+      animation: fade 0.2s ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+      border: 1px solid rgba(37, 99, 235, 0.08);
+    }
+
+    .card + .card {
+      margin-top: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--blue-dark);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border: 2px solid var(--blue-light);
+      border-radius: 10px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      background: var(--white);
+      color: var(--text);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    button.btn-primary {
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+    }
+
+    button.btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .result-box {
+      background: var(--blue-light);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      border-right: 4px solid var(--orange);
+    }
+
+    .result-box strong {
+      color: var(--blue-dark);
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-box .big {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--blue-dark);
+    }
+
+    .error {
+      color: #b91c1c;
+      font-size: 0.85rem;
+      margin-top: -0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Calculator */
+    .calc-display {
+      background: var(--blue-dark);
+      color: var(--white);
+      font-size: 2rem;
+      font-weight: 700;
+      padding: 1rem 1.1rem;
+      border-radius: 12px;
+      text-align: left;
+      direction: ltr;
+      min-height: 3.2rem;
+      word-break: break-all;
+      margin-bottom: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calc-grid button {
+      padding: 1rem;
+      font-size: 1.15rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--text);
+      border: 2px solid var(--blue-light);
+    }
+
+    .calc-grid button:active {
+      background: var(--blue-light);
+    }
+
+    .calc-grid button.op {
+      background: var(--blue);
+      color: var(--white);
+      border-color: var(--blue);
+    }
+
+    .calc-grid button.eq {
+      background: var(--orange);
+      color: var(--white);
+      border-color: var(--orange);
+      grid-column: span 2;
+    }
+
+    .calc-grid button.wide {
+      grid-column: span 2;
+    }
+
+    /* Bottom nav */
+    nav.bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border-top: 2px solid var(--blue-light);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+      box-shadow: 0 -4px 20px rgba(30, 58, 138, 0.08);
+      z-index: 100;
+    }
+
+    nav.bottom button {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    nav.bottom button.active {
+      color: var(--orange-dark);
+    }
+
+    nav.bottom button span.icon {
+      display: block;
+      font-size: 1.35rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>YTools</h1>
+    <p>حاسبة · قروض · عملات</p>
+  </header>
+
+  <main>
+    <section id="panel-calc" class="panel active">
+      <div class="card">
+        <div class="calc-display" id="calcDisplay">0</div>
+        <div class="calc-grid" id="calcGrid"></div>
+      </div>
+    </section>
+
+    <section id="panel-loan" class="panel">
+      <div class="card">
+        <label for="loanAmount">مبلغ القرض</label>
+        <input type="number" id="loanAmount" inputmode="decimal" placeholder="مثال: 200000" min="0" step="any" />
+
+        <label for="loanRate">نسبة الفائدة السنوية (%)</label>
+        <input type="number" id="loanRate" inputmode="decimal" placeholder="مثال: 5.5" min="0" step="any" />
+
+        <label for="loanMonths">مدة السداد (بالأشهر)</label>
+        <input type="number" id="loanMonths" inputmode="numeric" placeholder="مثال: 240" min="1" step="1" />
+
+        <button type="button" class="btn-primary" id="loanBtn">احسب القسط</button>
+
+        <div class="result-box" id="loanResult" hidden>
+          <strong>القسط الشهري التقريبي</strong>
+          <div class="big" id="loanMonthly"></div>
+          <strong style="margin-top:0.75rem">إجمالي المدفوعات</strong>
+          <div class="big" id="loanTotal" style="font-size:1.1rem"></div>
+          <strong style="margin-top:0.75rem">إجمالي الفوائد</strong>
+          <div class="big" id="loanInterest" style="font-size:1.1rem"></div>
+        </div>
+        <p class="hint">الحساب على أساس أقساط شهرية ثابتة (نفس المبلغ كل شهر).</p>
+      </div>
+    </section>
+
+    <section id="panel-currency" class="panel">
+      <div class="card">
+        <label for="curAmount">المبلغ</label>
+        <input type="number" id="curAmount" inputmode="decimal" placeholder="1" min="0" step="any" value="1" />
+
+        <label for="curFrom">من عملة</label>
+        <select id="curFrom"></select>
+
+        <label for="curTo">إلى عملة</label>
+        <select id="curTo"></select>
+
+        <button type="button" class="btn-primary" id="curBtn">حوّل</button>
+        <p class="error" id="curError" hidden></p>
+
+        <div class="result-box" id="curResult" hidden>
+          <strong>النتيجة</strong>
+          <div class="big" id="curOut"></div>
+        </div>
+        <p class="hint">الأسعار من <a href="https://www.exchangerate-api.com/" style="color:var(--blue)">ExchangeRate-API</a> (تحديث عند الضغط على «حوّل»، يحتاج إنترنت).</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom" aria-label="التنقل">
+    <button type="button" data-panel="calc" class="active">
+      <span class="icon">🔢</span>
+      حاسبة
+    </button>
+    <button type="button" data-panel="loan">
+      <span class="icon">🏦</span>
+      قرض
+    </button>
+    <button type="button" data-panel="currency">
+      <span class="icon">💱</span>
+      عملات
+    </button>
+  </nav>
+
+  <script>
+    (function () {
+      var panels = {
+        calc: document.getElementById("panel-calc"),
+        loan: document.getElementById("panel-loan"),
+        currency: document.getElementById("panel-currency")
+      };
+
+      document.querySelectorAll("nav.bottom button").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var key = btn.getAttribute("data-panel");
+          document.querySelectorAll("nav.bottom button").forEach(function (b) {
+            b.classList.toggle("active", b === btn);
+          });
+          Object.keys(panels).forEach(function (k) {
+            panels[k].classList.toggle("active", k === key);
+          });
+        });
+      });
+
+      /* ——— Calculator ——— */
+      var display = document.getElementById("calcDisplay");
+      var current = "0";
+      var stored = null;
+      var pendingOp = null;
+      var fresh = true;
+
+      function updateDisplay() {
+        display.textContent = current.length > 14 ? Number(current).toExponential(6) : current;
+      }
+
+      function inputDigit(d) {
+        if (fresh) {
+          current = d === "." ? "0." : d;
+          fresh = false;
+        } else {
+          if (d === "." && current.indexOf(".") !== -1) return;
+          if (current === "0" && d !== ".") current = d;
+          else current += d;
+        }
+        updateDisplay();
+      }
+
+      function doOp(next) {
+        var a = parseFloat(current);
+        if (pendingOp && stored !== null) {
+          var b = a;
+          a = stored;
+          if (pendingOp === "+") a += b;
+          else if (pendingOp === "-") a -= b;
+          else if (pendingOp === "×") a *= b;
+          else if (pendingOp === "÷") a = b === 0 ? NaN : a / b;
+          current = String(isNaN(a) ? "0" : Math.round(a * 1e10) / 1e10);
+          updateDisplay();
+        }
+        stored = parseFloat(current);
+        pendingOp = next;
+        fresh = true;
+      }
+
+      function equals() {
+        if (pendingOp === null) return;
+        doOp(null);
+        pendingOp = null;
+        stored = null;
+        fresh = true;
+      }
+
+      function clearAll() {
+        current = "0";
+        stored = null;
+        pendingOp = null;
+        fresh = true;
+        updateDisplay();
+      }
+
+      function backspace() {
+        if (fresh) return;
+        if (current.length <= 1) {
+          current = "0";
+          fresh = true;
+        } else current = current.slice(0, -1);
+        updateDisplay();
+      }
+
+      var keys = [
+        ["C", "⌫", "%", "÷"],
+        ["7", "8", "9", "×"],
+        ["4", "5", "6", "-"],
+        ["1", "2", "3", "+"],
+        ["0", ".", "="]
+      ];
+
+      var grid = document.getElementById("calcGrid");
+      keys.forEach(function (row) {
+        row.forEach(function (k, i) {
+          var b = document.createElement("button");
+          b.textContent = k;
+          b.type = "button";
+          if (["+", "-", "×", "÷", "%"].indexOf(k) !== -1) b.className = "op";
+          if (k === "=") b.className = "eq";
+          if (k === "0") b.className = "wide";
+          b.addEventListener("click", function () {
+            if (k >= "0" && k <= "9" || k === ".") inputDigit(k);
+            else if (k === "C") clearAll();
+            else if (k === "⌫") backspace();
+            else if (k === "%") {
+              current = String(parseFloat(current) / 100);
+              updateDisplay();
+              fresh = false;
+            } else if (k === "=") equals();
+            else doOp(k);
+          });
+          grid.appendChild(b);
+        });
+      });
+      updateDisplay();
+
+      /* ——— Loan ——— */
+      function formatMoney(n) {
+        return new Intl.NumberFormat("ar-MA", {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2
+        }).format(n) + " د.م.";
+      }
+
+      document.getElementById("loanBtn").addEventListener("click", function () {
+        var P = parseFloat(document.getElementById("loanAmount").value);
+        var annual = parseFloat(document.getElementById("loanRate").value);
+        var n = parseInt(document.getElementById("loanMonths").value, 10);
+        var box = document.getElementById("loanResult");
+        if (!P || P <= 0 || isNaN(annual) || annual < 0 || !n || n < 1) {
+          box.hidden = true;
+          return;
+        }
+        var r = annual / 100 / 12;
+        var monthly;
+        if (r === 0) monthly = P / n;
+        else monthly = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+        var total = monthly * n;
+        var interest = total - P;
+        document.getElementById("loanMonthly").textContent = formatMoney(monthly);
+        document.getElementById("loanTotal").textContent = formatMoney(total);
+        document.getElementById("loanInterest").textContent = formatMoney(interest);
+        box.hidden = false;
+      });
+
+      /* ——— Currency ——— */
+      var currencies = ["USD", "EUR", "MAD", "GBP", "SAR", "AED", "JPY", "CHF"];
+      var curFrom = document.getElementById("curFrom");
+      var curTo = document.getElementById("curTo");
+      currencies.forEach(function (c) {
+        var o1 = document.createElement("option");
+        o1.value = c;
+        o1.textContent = c;
+        curFrom.appendChild(o1);
+        var o2 = document.createElement("option");
+        o2.value = c;
+        o2.textContent = c;
+        curTo.appendChild(o2);
+      });
+      curFrom.value = "USD";
+      curTo.value = "MAD";
+
+      document.getElementById("curBtn").addEventListener("click", function () {
+        var amount = parseFloat(document.getElementById("curAmount").value);
+        var from = curFrom.value;
+        var to = curTo.value;
+        var errEl = document.getElementById("curError");
+        var resEl = document.getElementById("curResult");
+        errEl.hidden = true;
+        resEl.hidden = true;
+        if (isNaN(amount) || amount < 0) {
+          errEl.textContent = "دخل مبلغ صالح.";
+          errEl.hidden = false;
+          return;
+        }
+        if (from === to) {
+          document.getElementById("curOut").textContent =
+            new Intl.NumberFormat("ar-MA", { maximumFractionDigits: 4 }).format(amount) + " " + to;
+          resEl.hidden = false;
+          return;
+        }
+        var url = "https://open.er-api.com/v6/latest/" + encodeURIComponent(from);
+        fetch(url)
+          .then(function (r) {
+            if (!r.ok) throw new Error("شبكة");
+            return r.json();
+          })
+          .then(function (data) {
+            if (data.result !== "success" || !data.rates) throw new Error("بيانات");
+            var rate = data.rates[to];
+            if (rate == null) throw new Error("ما لقيناش السعر");
+            var out = amount * rate;
+            document.getElementById("curOut").textContent =
+              new Intl.NumberFormat("ar-MA", { maximumFractionDigits: 4 }).format(out) + " " + to +
+              " (≈ " + rate + " " + to + " / 1 " + from + ")";
+            resEl.hidden = false;
+          })
+          .catch(function () {
+            errEl.textContent = "ما قدرناش نجيبو الأسعار. جرّب الإنترنت.";
+            errEl.hidden = false;
+          });
+      });
+    })();
+  </script>
+</body>
+</html>
